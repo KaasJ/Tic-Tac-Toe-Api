@@ -1,12 +1,7 @@
 import { JsonController, Get, Body, HttpCode, Post, Put, Param, NotFoundError, BadRequestError } from 'routing-controllers'
-// import { validate } from 'class-validator'
-
-//Param, NotfoundError, Put
-
 import Game from './entity'
 
 const colors = ['red', 'blue', 'green', 'yellow', 'magenta']
-
 
 const defaultBoard = [
     ['o', 'o', 'o'],
@@ -23,8 +18,6 @@ export default class GameController {
         return { games }
     }
 
-
-
     @Post('/games')
     @HttpCode(201)
     createGame(
@@ -37,8 +30,6 @@ export default class GameController {
         return game.save()
     }
 
-
-
     @Put('/games/:id')
     async updateGame(
         @Param('id') id: number,
@@ -46,33 +37,21 @@ export default class GameController {
     ) {
         const game = await Game.findOne(id)
         if (!game) throw new NotFoundError('Cannot find game')
-
-        if (name) {
-            game.name = name
-        }
+        if (name) game.name = name
+        if (color) game.color = color
         if (board) {
-            console.log(game.board, board)
             const moves = (board1, board2) =>
                 board1
                     .map((row, y) => row.filter((cell, x) => board2[y][x] !== cell))
                     .reduce((a, b) => a.concat(b))
                     .length
-            moves(game.board, board)
-            console.log(moves(game.board, board))
             if(moves(game.board, board) > 1) {
                 throw new BadRequestError('Multiple moves are not allowed')
             }
-            
             game.board = board
         }
-        if (color) {
-            game.color = color
-        }
-
         return game.save()
     }
-
-
 }
 
 
